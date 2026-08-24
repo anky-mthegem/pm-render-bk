@@ -443,7 +443,18 @@
                 <p class="text-xs text-slate-400 mt-0.5">Identify workload balance, total estimated hours, and over-allocated team members.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Empty State if no members -->
+            <div x-show="!workloadData || workloadData.length === 0" class="p-8 text-center bg-slate-900 border border-slate-800 rounded-xl space-y-3">
+                <i data-lucide="users" class="w-8 h-8 text-slate-600 mx-auto"></i>
+                <h3 class="text-sm font-bold text-white">No Team Contributors Found</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">Add team members in Team Management or assign tasks to see live workload capacity and allocation.</p>
+                <a href="/team/" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold">
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                    <span>Go to Team Management</span>
+                </a>
+            </div>
+
+            <div x-show="workloadData && workloadData.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 <template x-for="member in workloadData" :key="member.user_id">
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg space-y-4">
                         <div class="flex items-center justify-between">
@@ -481,6 +492,11 @@
                                 <div class="flex items-center justify-between p-2 rounded bg-slate-800/60 text-xs">
                                     <span class="truncate max-w-[180px] text-slate-200" x-text="`[${t.wbs_code}] ${t.name}`"></span>
                                     <span class="text-[10px] font-mono text-slate-400" x-text="`${t.progress}%`"></span>
+                                </div>
+                            </template>
+                            <template x-if="!member.tasks || member.tasks.length === 0">
+                                <div class="p-3 bg-slate-850/50 rounded-lg text-center text-slate-500 text-[11px] italic">
+                                    No active tasks assigned (Available Capacity)
                                 </div>
                             </template>
                         </div>

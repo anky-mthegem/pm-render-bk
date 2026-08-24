@@ -284,16 +284,27 @@ def calculate_evm_metrics(project) -> Dict:
 def calculate_resource_workload(project) -> List[Dict]:
     """Calculates assigned task count, total hours, and active dates per assignable team member."""
     from django.contrib.auth.models import User
-    members = project.memberships.select_related('user').exclude(user__username='aman')
-    user_ids = [m.user_id for m in members]
+    
+    # 1. Project members (excluding master admin 'aman')
+    member_user_ids = set(project.memberships.exclude(user__username='aman').values_list('user_id', flat=True))
+    
+    # 2. Users assigned to tasks in this project
+    task_user_ids = set(project.tasks.filter(assignee__isnull=False).exclude(assignee__username='aman').values_list('assignee_id', flat=True))
+    
+    combined_ids = member_user_ids | task_user_ids
+    
+    # 3. If no specific project members or task assignees yet, list all active company users so manager can see available capacity
+    if not combined_ids:
+        combined_ids = set(User.objects.filter(is_active=True).exclude(username='aman').values_list('id', flat=True))
+        
+    users = User.objects.filter(id__in=combined_ids, is_active=True).order_by('first_name', 'username')
 
     result = []
-    for user_id in user_ids:
-        user = User.objects.get(id=user_id)
+    for user in users:
         assigned_tasks = project.tasks.filter(assignee=user)
         total_hours = sum(t.estimated_hours for t in assigned_tasks)
         actual_hours = sum(t.actual_hours for t in assigned_tasks)
-        active_tasks = assigned_tasks.filter(status__in=['IN_PROGRESS', 'NOT_STARTED'])
+        active_tasks = assigned_tasks.filter(status__in=['IN_PROGRESS', 'NOT_STARTED', 'DELAYED'])
         completed_tasks = assigned_tasks.filter(status='COMPLETE')
 
         result.append({
