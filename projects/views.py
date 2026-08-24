@@ -41,7 +41,7 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, f"Welcome to Gantt Excel, {user.username}! (Authorized by admin {auth_admin.username})")
+            messages.success(request, f"Welcome to Milestone Management, {user.username}! (Authorized by admin {auth_admin.username})")
             return redirect('dashboard')
         else:
             for field, errors in form.errors.items():

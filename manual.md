@@ -1,6 +1,6 @@
-# Gantt Excel PRO — Comprehensive User Guide & Operations Manual
+# Milestone Management — Comprehensive User Guide & Operations Manual
 
-Welcome to **Gantt Excel PRO**, a self-hosted full-stack Project Management and Interactive Gantt Scheduling web application. This guide provides instructions on navigating the system, managing project portfolios, constructing Work Breakdown Structures (WBS), calculating the Critical Path (CPM), tracking baselines, analyzing Earned Value (EVM), balancing team workloads, and importing/exporting formatted Excel files.
+Welcome to **Milestone Management**, a self-hosted full-stack Project Management and Interactive Gantt Scheduling web application. This guide provides instructions on navigating the system, managing project portfolios, constructing Work Breakdown Structures (WBS), calculating the Critical Path (CPM), tracking baselines, analyzing Earned Value (EVM), balancing team workloads, and importing/exporting formatted Excel files.
 
 ---
 
@@ -10,7 +10,7 @@ Welcome to **Gantt Excel PRO**, a self-hosted full-stack Project Management and 
 3. [Project Portfolio Dashboard](#3-project-portfolio-dashboard)
 4. [Team & User Management (Add, Edit, Delete Users)](#4-team--user-management-add-edit-delete-users)
 5. [Multi-View Workspace Navigation](#5-multi-view-workspace-navigation)
-6. [Dual-Pane Gantt Excel Interface](#6-dual-pane-gantt-excel-interface)
+6. [Dual-Pane Milestone Management Interface](#6-dual-pane-milestone-management-interface)
 7. [Critical Path Method (CPM) & Float Calculation](#7-critical-path-method-cpm--float-calculation)
 8. [Baseline vs. Actual Schedule Tracking](#8-baseline-vs-actual-schedule-tracking)
 9. [Interactive Kanban Board](#9-interactive-kanban-board)
@@ -26,7 +26,7 @@ Welcome to **Gantt Excel PRO**, a self-hosted full-stack Project Management and 
 
 ## 1. System Overview & Architecture
 
-Gantt Excel PRO combines a structured spreadsheet grid with an interactive Gantt timeline customized for **Indian Standards**:
+Milestone Management combines a structured spreadsheet grid with an interactive Gantt timeline customized for **Indian Standards**:
 
 - **Currency & Financials**: Indian Rupee (**INR - `₹`**) with Indian Numbering System (Lakhs, Crores).
 - **Date & Time Standards**: **`DD/MM/YYYY`** date format and **`Asia/Kolkata` (IST, UTC+05:30)** timezone.

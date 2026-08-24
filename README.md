@@ -1,4 +1,4 @@
-# 📊 Gantt Excel PRO — Enterprise Project Management System
+# 📊 Milestone Management — Enterprise Project Management System
 
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.1%2B-092E20.svg)](https://www.djangoproject.com/)
@@ -6,7 +6,7 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/anky-mthegem/project_management_GB)
 [![License](https://img.shields.io/badge/License-Proprietary%20%2F%20Internal-orange.svg)](#)
 
-**Gantt Excel PRO** is a web-based, enterprise-grade project management application that combines the familiarity and speed of **Microsoft Excel** with the power of modern **Gantt Charts**, **Critical Path Method (CPM) automated scheduling**, and **Work Breakdown Structure (WBS)**.
+**Milestone Management** is a web-based, enterprise-grade project management application that combines the familiarity and speed of spreadsheet grids with the power of modern **Gantt Charts**, **Critical Path Method (CPM) automated scheduling**, and **Work Breakdown Structure (WBS)**.
 
 ---
 

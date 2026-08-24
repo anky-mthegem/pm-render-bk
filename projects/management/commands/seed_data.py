@@ -15,13 +15,13 @@ class Command(BaseCommand):
     help = 'Populates the database with sample projects, Indian Standard (INR ₹) budgets, WBS tasks, and dependencies.'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.NOTICE("Seeding Gantt Excel data as per Indian Standard..."))
+        self.stdout.write(self.style.NOTICE("Seeding Milestone Management data as per Indian Standard..."))
 
         # 1. Create Superuser and Authorized Users
         aman_user, _ = User.objects.get_or_create(
             username='aman',
             defaults={
-                'email': 'aman@ganttexcel.local',
+                'email': 'aman@milestonemanagement.local',
                 'first_name': 'Aman',
                 'last_name': 'Admin',
                 'is_staff': True,
@@ -220,7 +220,7 @@ class Command(BaseCommand):
         t2_3 = Task.objects.create(
             project=project,
             parent_task=p2,
-            name='2.3 Interactive Gantt Excel UI & Real-Time Sync',
+            name='2.3 Interactive Milestone Gantt UI & Real-Time Sync',
             description='Dual-pane split view, SVG arrows, drag-to-resize timeline, and Alpine.js reactivity.',
             start_date=today - timedelta(days=2),
             end_date=today + timedelta(days=14),

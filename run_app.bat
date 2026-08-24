@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Gantt Excel PRO - Server Launcher
+title Milestone Management - Server Launcher
 color 0B
 
 echo =====================================================================
-echo                  GANTT EXCEL PRO - PORTABLE LAUNCHER
+echo                MILESTONE MANAGEMENT - PORTABLE LAUNCHER
 echo =====================================================================
 echo.
 
@@ -92,7 +92,7 @@ echo [2/3] Initializing Master Administrator and seed data...
 echo      Master Account verified.
 echo.
 
-echo [3/3] Starting Gantt Excel PRO server...
+echo [3/3] Starting Milestone Management server...
 echo.
 echo =====================================================================
 echo  Server URL: http://127.0.0.1:8000/

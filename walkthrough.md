@@ -1,12 +1,12 @@
-# Gantt Excel PRO: Enterprise Project Management Web Application
+# Milestone Management: Enterprise Project Management Web Application
 
-A full-stack Project Management Web Application inspired by **Gantt Excel** featuring interactive Gantt scheduling, multi-view workspaces, Critical Path Method (CPM), baseline variance tracking, Kanban board, team workload capacity, Earned Value Management (EVM), and formatted Excel (.xlsx) import/export.
+A full-stack Project Management Web Application featuring interactive Gantt scheduling, multi-view workspaces, Critical Path Method (CPM), baseline variance tracking, Kanban board, team workload capacity, Earned Value Management (EVM), and formatted Excel (.xlsx) import/export.
 
 ---
 
 ## 🌟 Comprehensive Feature Suite
 
-### 1. 📊 Interactive Gantt Excel & Work Breakdown Structure (WBS)
+### 1. 📊 Interactive Gantt Workspace & Work Breakdown Structure (WBS)
 - **Dual-Pane Layout**: Excel spreadsheet grid on the left synced with the interactive SVG timeline on the right.
 - **WBS Indexing**: Automatic hierarchical numbering (`1.0`, `1.1`, `1.1.1`).
 - **Drag-to-Move & Drag-to-Resize**: Reschedule dates or extend duration directly on the timeline.

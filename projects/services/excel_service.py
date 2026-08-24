@@ -9,7 +9,7 @@ from projects.models import Task, TaskDependency, Project
 
 def export_project_to_excel(project: Project) -> io.BytesIO:
     """
-    Generates a stylized Excel (.xlsx) file representing the full Gantt Excel task sheet
+    Generates a stylized Excel (.xlsx) file representing the full Milestone Management task sheet
     formatted as per Indian Standards (INR ₹, DD/MM/YYYY, Man-Hours).
     """
     wb = openpyxl.Workbook()
@@ -32,7 +32,7 @@ def export_project_to_excel(project: Project) -> io.BytesIO:
     )
 
     # Title Block (Indian Standard IST timestamp)
-    ws['A1'] = f"GANTT EXCEL - {project.name}"
+    ws['A1'] = f"MILESTONE MANAGEMENT - {project.name}"
     ws['A1'].font = title_font
     ws['A2'] = f"Project Code: {project.code} | Status: {project.get_status_display()} | Generated: {datetime.now().strftime('%d/%m/%Y %H:%M')} IST | Currency: INR (₹)"
     ws['A2'].font = subtitle_font
