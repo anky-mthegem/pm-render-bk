@@ -35,18 +35,6 @@
 
 ---
 
-### 🔑 Default Login Credentials
-
-| User Handle | Name | Role | Default Password |
-| :--- | :--- | :--- | :--- |
-| **`aman`** | **Aman Admin** | 👑 **Master Administrator** | **`123456`** |
-| **`amanr`** | **Amandeep Singh** | **Project Manager** | **`123456`** |
-| **`smali`** | **Swapnil Mali** | **Project Manager** | **`123456`** |
-
-> 🔒 **Master Account Note**: The `@aman` account is permanently protected by database signals and cannot be deleted, demoted, or locked out.
-
----
-
 ## 🛠️ Manual Installation (Cross-Platform)
 
 If you prefer using your own Python virtual environment on **macOS, Linux, or Windows**:

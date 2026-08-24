@@ -41,15 +41,8 @@ Gantt Excel PRO combines a structured spreadsheet grid with an interactive Gantt
 
 ## 2. Authentication & Access Control
 
-### 2.1 Master Admin Login
-Navigate to **`http://127.0.0.1:8000/login/`**
-
-| Field | Value |
-|---|---|
-| **Username** | `aman` |
-| **Password** | `123456` |
-
-Click **Sign in to Gantt Excel** to access the dashboard.
+### 2.1 User Login
+Navigate to **`http://127.0.0.1:8000/login/`** and sign in with your authorized system credentials to access the project management dashboard.
 
 ---
 
@@ -57,14 +50,12 @@ Click **Sign in to Gantt Excel** to access the dashboard.
 To ensure strict security and prevent unauthorized sign-ups, the **Create New Account** page (**`/register/`**) requires administrative authorization:
 
 1. Click **Create new account** on the login screen (or visit `http://127.0.0.1:8000/register/`).
-2. Fill in the **Admin Authorization Required** section:
-   - **Admin Username**: `aman`
-   - **Admin Password**: `123456`
+2. Fill in the **Admin Authorization Required** section with valid administrator credentials.
 3. Fill in the **New Account Credentials**:
-   - Desired Username (e.g., `sarah_pm`)
+   - Desired Username
    - Password (and Password Confirmation)
 4. Click **Authorize & Register Account**.
-5. If the admin authorization credentials match, the new account is provisioned immediately.
+5. Once authorized, the new account is provisioned immediately.
 
 ---
 
@@ -97,7 +88,7 @@ The **Team Members** page displays all active users in the system along with:
    - **First Name & Last Name**: (e.g. `Sarah` and `Jenkins`).
    - **User ID / Username (@handle)**: (e.g. `sarah_pm`).
    - **Email Address**: (e.g. `sarah.jenkins@ganttexcel.local`).
-   - **Temporary Password**: (Default: `123456`).
+   - **Temporary Password**: Set an initial password for the user.
    - **Role**: Select Member, Project Manager, or Administrator.
 3. Click **Create Member**. The user is immediately available for task assignment in all Gantt schedules and Workload heatmaps.
 
@@ -107,11 +98,9 @@ The **Team Members** page displays all active users in the system along with:
 3. Click **Update Member**.
 
 ### 4.4 Deleting a Team Member
-1. Click the **Delete (trash icon)** button next to any user (e.g., Sarah Jenkins).
+1. Click the **Delete (trash icon)** button next to any user.
 2. A confirmation modal will appear explaining that any tasks assigned to them will be safely preserved and marked as *Unassigned*.
 3. Click **Yes, Remove User**.
-> *Note: The master root admin `@aman` is permanently protected and cannot be deleted.*
-
 
 ---
 
@@ -233,7 +222,7 @@ Click any task to open the multi-tab drawer:
 
 For direct database operations and user management:
 1. Open **`http://127.0.0.1:8000/admin/`**
-2. Log in with `aman` / `123456`.
+2. Log in with your administrator credentials.
 3. Manage **Projects**, **Tasks**, **Dependencies**, **Comments**, **Attachments**, and **Activity Logs**.
 
 ---

@@ -45,18 +45,13 @@ A full-stack Project Management Web Application inspired by **Gantt Excel** feat
 - Full chronological activity feed tracking all changes.
 
 ### 9. 👥 Team & User Management (`/team/`)
-- **Add Team Members**: Create new team users (e.g. *Sarah Jenkins* with ID `@sarah_pm`) with First/Last Name, Username ID, Email, Role, and Password.
-- **Edit & Delete Users**: Safe deletion with task unassignment protection (master admin `@aman` is permanently protected).
+- **Add Team Members**: Create new team users with First/Last Name, Username ID, Email, Role, and Password.
+- **Edit & Delete Users**: Safe deletion with task unassignment protection.
 - **Workload & Assignment Integration**: Direct tracking of assigned tasks, active tasks, estimated hours, and actual hours across all projects.
 
 ---
 
-## 🚀 Quick Launch & Credentials
-
-### Master Admin Login
-Navigate to **`http://127.0.0.1:8000/login/`**:
-- **Username**: `aman`
-- **Password**: `123456`
+## 🚀 Quick Launch
 
 ### Running the App:
 - **Double-click**: `run_app.bat` (or `start.bat`)

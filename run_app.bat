@@ -62,17 +62,15 @@ if %errorlevel% neq 0 (
 echo      Database is up to date.
 echo.
 
-echo [2/3] Checking Master Administrator account...
+echo [2/3] Initializing Master Administrator and seed data...
 "%PY_EXE%" manage.py seed_data >nul 2>&1
-echo      Master Account: username 'aman', password '123456'
+echo      Master Account verified.
 echo.
 
 echo [3/3] Launching web browser and starting Gantt Excel PRO server...
 echo.
 echo =====================================================================
 echo  Server URL: http://127.0.0.1:8000/
-echo  Master User: aman
-echo  Password:    123456
 echo =====================================================================
 echo.
 echo Press Ctrl+C in this window anytime to stop the server.
