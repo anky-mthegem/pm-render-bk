@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Milestone Management - Project Management{% endblock %}</title>
+    <link rel="icon" type="image/png" href="/static/img/logo_icon.png">
     
     <!-- Google Fonts Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,8 +67,8 @@
                 <!-- Logo & Brand -->
                 <div class="flex items-center space-x-6">
                     <a href="{% url 'dashboard' %}" class="flex items-center space-x-2.5 group">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform">
-                            <i data-lucide="gantt-chart" class="w-5 h-5 text-white"></i>
+                        <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center bg-white/95 border border-slate-700/60 shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform p-0.5">
+                            <img src="/static/img/logo_icon.png" alt="Milestone Management" class="w-full h-full object-contain">
                         </div>
                         <div class="flex flex-col">
                             <span class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
