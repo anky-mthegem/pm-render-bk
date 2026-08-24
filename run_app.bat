@@ -21,7 +21,23 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo [1/3] Applying database migrations...
+echo [1/4] Checking Python packages and dependencies...
+python -c "import django, rest_framework, openpyxl" >nul 2>&1
+if %errorlevel% neq 0 (
+    echo      Installing missing dependencies (Django, DRF, openpyxl)...
+    python -m pip install -r requirements.txt
+    if %errorlevel% neq 0 (
+        color 0C
+        echo [ERROR] Failed to install dependencies from requirements.txt!
+        echo Please ensure you have internet access or run: pip install -r requirements.txt
+        pause
+        exit /b 1
+    )
+)
+echo      Dependencies are ready.
+echo.
+
+echo [2/4] Applying database migrations...
 python manage.py migrate --noinput
 if %errorlevel% neq 0 (
     color 0C
@@ -29,15 +45,15 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo      Migrations up to date.
+echo      Database is up to date.
 echo.
 
-echo [2/3] Checking demo data and admin credentials...
+echo [3/4] Initializing Master Administrator and seed data...
 python manage.py seed_data >nul 2>&1
-echo      Admin account ready: username 'aman', password '123456'
+echo      Master Account: username 'aman', password '123456'
 echo.
 
-echo [3/3] Launching web browser and starting Django server...
+echo [4/4] Launching web browser and starting Django server...
 echo.
 echo =====================================================================
 echo  Server URL: http://127.0.0.1:8000/
