@@ -344,4 +344,64 @@ class GanttProjectTestCase(TestCase):
         membership.refresh_from_db()
         self.assertEqual(membership.role, ProjectRole.ADMIN)
 
+    def test_cannot_assign_task_to_master_user_model(self):
+        """Verify Task.clean() and Task.save() prevent assigning tasks to master user 'aman'."""
+        task = Task(
+            project=self.project,
+            name='Forbidden Task',
+            start_date=self.today,
+            end_date=self.today + timedelta(days=2),
+            assignee=self.user
+        )
+        with self.assertRaises(ValidationError):
+            task.clean()
+
+        with self.assertRaises(ValidationError):
+            task.save()
+
+    def test_cannot_assign_task_to_master_user_serializer_and_api(self):
+        """Verify TaskSerializer and REST API reject creating or updating tasks with aman as assignee."""
+        from projects.api.serializers import TaskSerializer
+        serializer = TaskSerializer(data={
+            'project': self.project.id,
+            'name': 'API Forbidden Task',
+            'start_date': self.today.isoformat(),
+            'end_date': (self.today + timedelta(days=3)).isoformat(),
+            'assignee': self.user.id
+        })
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('assignee', serializer.errors)
+
+        # Direct REST API POST
+        response = self.client.post('/api/tasks/', {
+            'project': self.project.id,
+            'name': 'API Post Task',
+            'start_date': self.today.isoformat(),
+            'end_date': (self.today + timedelta(days=3)).isoformat(),
+            'assignee': self.user.id
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_gantt_data_and_users_api_exclude_master_user(self):
+        """Verify master user 'aman' is excluded from assignable user listings."""
+        response = self.client.get(f'/api/projects/{self.project.id}/gantt-data/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user_list = response.data.get('users', [])
+        usernames = [u['username'] for u in user_list]
+        self.assertNotIn('aman', usernames)
+
+        # ReadOnly Users API endpoint
+        users_resp = self.client.get('/api/users/')
+        self.assertEqual(users_resp.status_code, status.HTTP_200_OK)
+        results = users_resp.data.get('results', users_resp.data) if isinstance(users_resp.data, dict) else users_resp.data
+        api_usernames = [u['username'] for u in results]
+        self.assertNotIn('aman', api_usernames)
+
+    def test_resource_workload_excludes_master_user(self):
+        """Verify calculate_resource_workload does not include master admin 'aman'."""
+        workload = calculate_resource_workload(self.project)
+        workload_usernames = [w['username'] for w in workload]
+        self.assertNotIn('aman', workload_usernames)
+
+
 

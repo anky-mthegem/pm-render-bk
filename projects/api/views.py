@@ -77,7 +77,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         ).select_related('from_task', 'to_task')
         dependencies_data = TaskDependencySerializer(deps, many=True).data
 
-        users = User.objects.filter(is_active=True).values('id', 'username', 'first_name', 'last_name', 'email')
+        users = User.objects.filter(is_active=True).exclude(username='aman').values('id', 'username', 'first_name', 'last_name', 'email')
         evm = calculate_evm_metrics(project)
         workload = calculate_resource_workload(project)
 
@@ -428,6 +428,6 @@ class TaskDependencyViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.filter(is_active=True).order_by('username')
+    queryset = User.objects.filter(is_active=True).exclude(username='aman').order_by('username')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]

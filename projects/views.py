@@ -92,7 +92,7 @@ def dashboard_view(request):
         assignee=request.user
     ).select_related('project').order_by('end_date')[:10]
 
-    all_users = User.objects.filter(is_active=True).order_by('username')
+    all_users = User.objects.filter(is_active=True).exclude(username='aman').order_by('username')
     
     context = {
         'projects': projects,
@@ -110,7 +110,7 @@ def dashboard_view(request):
 def project_gantt_view(request, code):
     project = get_object_or_404(Project, code=code)
     all_projects = Project.objects.all().order_by('name')
-    all_users = User.objects.filter(is_active=True).order_by('first_name', 'username')
+    all_users = User.objects.filter(is_active=True).exclude(username='aman').order_by('first_name', 'username')
     
     context = {
         'project': project,

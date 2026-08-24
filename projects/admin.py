@@ -42,6 +42,11 @@ class TaskInline(admin.TabularInline):
     extra = 0
     show_change_link = True
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "assignee":
+            kwargs["queryset"] = User.objects.filter(is_active=True).exclude(username='aman')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -106,6 +111,11 @@ class TaskAdmin(admin.ModelAdmin):
     list_filter = ('project', 'status', 'priority', 'is_critical', 'is_milestone', 'start_date')
     search_fields = ('name', 'description', 'project__name')
     inlines = [PredecessorInline, TaskCommentInline, TaskAttachmentInline]
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "assignee":
+            kwargs["queryset"] = User.objects.filter(is_active=True).exclude(username='aman')
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def wbs_code_display(self, obj):
         return format_html('<strong>{}</strong>', obj.wbs_code)

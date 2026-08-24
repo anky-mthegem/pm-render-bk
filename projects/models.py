@@ -281,6 +281,9 @@ class Task(models.Model):
         return f"[{self.project.code}] {self.name}"
 
     def clean(self):
+        if self.assignee and self.assignee.username == 'aman':
+            raise ValidationError({'assignee': "Master user 'aman' is reserved for administration only and cannot be assigned to tasks."})
+
         if self.start_date and self.end_date and self.end_date < self.start_date:
             raise ValidationError({'end_date': "End date cannot be earlier than start date."})
 
@@ -300,6 +303,9 @@ class Task(models.Model):
                 ancestor = ancestor.parent_task
 
     def save(self, *args, **kwargs):
+        if self.assignee and self.assignee.username == 'aman':
+            raise ValidationError("Master user 'aman' is reserved for administration only and cannot be assigned to tasks.")
+
         # Calculate duration
         if self.start_date and self.end_date:
             self.duration_days = max(1, (self.end_date - self.start_date).days + 1)

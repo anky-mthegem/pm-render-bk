@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from projects.models import Project, ProjectMember, ProjectRole
+from projects.models import Project, ProjectMember, ProjectRole, Task
 
 
 MASTER_USERNAME = 'aman'
@@ -91,3 +91,11 @@ def attach_master_user_to_new_project(sender, instance, created, **kwargs):
             )
     except Exception:
         pass
+
+
+@receiver(pre_save, sender=Task)
+def protect_master_user_from_task_assignment(sender, instance, **kwargs):
+    """Enforces that master user 'aman' is strictly for admin and cannot be assigned to tasks."""
+    if instance.assignee and instance.assignee.username == MASTER_USERNAME:
+        raise ValidationError(f"Master user '{MASTER_USERNAME}' is reserved for administration only and cannot be assigned to tasks.")
+

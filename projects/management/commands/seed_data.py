@@ -160,7 +160,7 @@ class Command(BaseCommand):
             actual_cost=Decimal('50000.00'),
             estimated_hours=10,
             actual_hours=10,
-            assignee=aman_user,
+            assignee=amandeep_user,
             sort_order=13
         )
 
@@ -323,7 +323,7 @@ class Command(BaseCommand):
             actual_cost=Decimal('0.00'),
             estimated_hours=15,
             actual_hours=0,
-            assignee=aman_user,
+            assignee=swapnil_user,
             sort_order=33
         )
 
@@ -396,7 +396,7 @@ class Command(BaseCommand):
             actual_cost=Decimal('0.00'),
             estimated_hours=10,
             actual_hours=0,
-            assignee=aman_user,
+            assignee=amandeep_user,
             sort_order=43
         )
 

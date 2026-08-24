@@ -146,7 +146,16 @@ class TaskSerializer(serializers.ModelSerializer):
             for d in deps
         ]
 
+    def validate_assignee(self, value):
+        if value and value.username == 'aman':
+            raise serializers.ValidationError("Master user 'aman' is reserved for administration only and cannot be assigned to tasks.")
+        return value
+
     def validate(self, attrs):
+        assignee = attrs.get('assignee', self.instance.assignee if self.instance else None)
+        if assignee and assignee.username == 'aman':
+            raise serializers.ValidationError({"assignee": "Master user 'aman' is reserved for administration only and cannot be assigned to tasks."})
+
         start_date = attrs.get('start_date', self.instance.start_date if self.instance else None)
         end_date = attrs.get('end_date', self.instance.end_date if self.instance else None)
 

@@ -282,9 +282,9 @@ def calculate_evm_metrics(project) -> Dict:
 
 
 def calculate_resource_workload(project) -> List[Dict]:
-    """Calculates assigned task count, total hours, and active dates per team member."""
+    """Calculates assigned task count, total hours, and active dates per assignable team member."""
     from django.contrib.auth.models import User
-    members = project.memberships.select_related('user').all()
+    members = project.memberships.select_related('user').exclude(user__username='aman')
     user_ids = [m.user_id for m in members]
 
     result = []
