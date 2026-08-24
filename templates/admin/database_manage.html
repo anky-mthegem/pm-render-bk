@@ -1,0 +1,300 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Database Backup & Restore | {{ site_title|default:"Milestone Management Admin" }}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .db-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            font-family: inherit;
+        }
+        .db-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        }
+        .db-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #334155;
+        }
+        .db-header h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .db-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .db-metric {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .db-metric-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .db-metric-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: #34d399;
+            font-family: monospace;
+        }
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        .btn-primary {
+            background: #059669;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+        }
+        .btn-primary:hover {
+            background: #10b981;
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: #ffffff !important;
+        }
+        .btn-danger:hover {
+            background: #ef4444;
+        }
+        .btn-secondary {
+            background: #334155;
+            color: #f8fafc !important;
+            border: 1px solid #475569;
+        }
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        .db-table th {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #334155;
+        }
+        .db-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #334155;
+            color: #f8fafc;
+        }
+        .db-table tr:hover td {
+            background: rgba(51, 65, 85, 0.4);
+        }
+        .badge-safe {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .file-upload-box {
+            border: 2px dashed #475569;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            background: #0f172a;
+            margin-bottom: 16px;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; Database Backup & Restore
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="db-container">
+
+    <!-- Active Database Overview -->
+    <div class="db-card">
+        <div class="db-header">
+            <h2>
+                <span>📊 Live Database Status</span>
+                <span class="badge-safe">Active: SQLite 3</span>
+            </h2>
+            <a href="{% url 'admin:database_export' %}" class="btn-action btn-primary">
+                ⬇️ Export Live Database (.sqlite3)
+            </a>
+        </div>
+
+        <div class="db-grid">
+            <div class="db-metric">
+                <span class="db-metric-label">Database File</span>
+                <span class="db-metric-val" style="font-size: 14px; color: #ffffff;">{{ stats.db_filename }}</span>
+            </div>
+            <div class="db-metric">
+                <span class="db-metric-label">File Size</span>
+                <span class="db-metric-val">{{ stats.size_formatted }}</span>
+            </div>
+            <div class="db-metric">
+                <span class="db-metric-label">Projects</span>
+                <span class="db-metric-val" style="color: #60a5fa;">{{ stats.total_projects }}</span>
+            </div>
+            <div class="db-metric">
+                <span class="db-metric-label">Tasks / WBS</span>
+                <span class="db-metric-val" style="color: #fbbf24;">{{ stats.total_tasks }}</span>
+            </div>
+            <div class="db-metric">
+                <span class="db-metric-label">Users / Members</span>
+                <span class="db-metric-val" style="color: #a78bfa;">{{ stats.total_users }}</span>
+            </div>
+            <div class="db-metric">
+                <span class="db-metric-label">Last Modified</span>
+                <span class="db-metric-val" style="font-size: 13px; color: #e2e8f0;">{{ stats.last_modified|date:"d/m/Y H:i" }}</span>
+            </div>
+        </div>
+
+        <div style="font-size: 12px; color: #94a3b8; background: #0f172a; padding: 10px 14px; border-radius: 6px; border: 1px solid #334155;">
+            <strong>Absolute Path:</strong> <code>{{ stats.db_path }}</code>
+        </div>
+    </div>
+
+    <!-- Import / Restore Panel -->
+    <div class="db-card">
+        <div class="db-header">
+            <h2>
+                <span>⬆️ Import & Restore Database (.sqlite3)</span>
+            </h2>
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; color: #fde68a; font-size: 13px;">
+            <strong>⚠️ Important Safety Notice:</strong>
+            <p style="margin: 4px 0 0 0; color: #fef08a; font-size: 12px;">
+                Uploading a new <code>.sqlite3</code> or <code>.db</code> file will replace the current live database. 
+                The system will automatically create a timestamped <strong>safety rollback backup</strong> before applying changes so no data is ever lost.
+            </p>
+        </div>
+
+        <form method="POST" action="{% url 'admin:database_import' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="file-upload-box">
+                <p style="margin: 0 0 10px 0; font-size: 14px; font-weight: 600; color: #ffffff;">Select or Drag & Drop a .sqlite3 backup file</p>
+                <input type="file" name="database_file" accept=".sqlite3,.db,.sqlite" required 
+                       style="padding: 10px; background: #1e293b; border: 1px solid #475569; border-radius: 6px; color: #f8fafc; font-size: 13px; width: 80%; max-width: 400px;">
+                <p style="margin: 8px 0 0 0; font-size: 11px; color: #94a3b8;">Accepted formats: <code>.sqlite3</code>, <code>.db</code>, <code>.sqlite</code></p>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; cursor: pointer;">
+                    <input type="checkbox" required style="width: 16px; height: 16px; accent-color: #059669;">
+                    <span>I confirm that I want to restore this database file (an automatic rollback copy will be saved).</span>
+                </label>
+
+                <button type="submit" class="btn-action btn-primary" onclick="return confirm('Are you sure you want to restore this database? An automatic safety backup will be created.');">
+                    🚀 Upload & Restore Database
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Automatic Rollback & Saved Backups History -->
+    <div class="db-card">
+        <div class="db-header">
+            <h2>
+                <span>🕒 Rollback & Saved Backups History</span>
+                <span style="font-size: 12px; color: #94a3b8; font-weight: normal;">({{ backups|length }} backups stored)</span>
+            </h2>
+        </div>
+
+        {% if backups %}
+        <table class="db-table">
+            <thead>
+                <tr>
+                    <th>Backup File Name</th>
+                    <th>File Size</th>
+                    <th>Created Date (IST)</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in backups %}
+                <tr>
+                    <td>
+                        <strong style="color: #ffffff; font-family: monospace;">{{ b.filename }}</strong>
+                        {% if "pre_restore" in b.filename %}
+                            <span style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                                Auto-Rollback
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="color: #34d399; font-family: monospace;">{{ b.size_formatted }}</td>
+                    <td style="color: #cbd5e1;">{{ b.created_at|date:"d/m/Y H:i:s" }}</td>
+                    <td style="text-align: right;">
+                        <div style="display: inline-flex; gap: 8px;">
+                            <!-- 1-Click Restore -->
+                            <form method="POST" action="{% url 'admin:database_restore_backup' backup_name=b.filename %}" style="display: inline;"
+                                  onsubmit="return confirm('Are you sure you want to restore {{ b.filename }}? Current database will be auto-backed up first.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-secondary" style="padding: 5px 10px; font-size: 11px;">
+                                    🔄 Restore
+                                </button>
+                            </form>
+
+                            <!-- Delete -->
+                            <form method="POST" action="{% url 'admin:database_delete_backup' backup_name=b.filename %}" style="display: inline;"
+                                  onsubmit="return confirm('Delete backup file {{ b.filename }}?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-danger" style="padding: 5px 10px; font-size: 11px;">
+                                    🗑️ Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 30px; color: #94a3b8; font-size: 13px;">
+            No rollback backups recorded yet. Backups are created automatically whenever a database is imported or restored.
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

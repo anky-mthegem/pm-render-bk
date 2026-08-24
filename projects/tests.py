@@ -1,4 +1,4 @@
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, Client
 from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ValidationError
@@ -402,6 +402,72 @@ class GanttProjectTestCase(TestCase):
         workload = calculate_resource_workload(self.project)
         workload_usernames = [w['username'] for w in workload]
         self.assertNotIn('aman', workload_usernames)
+
+
+class DatabaseBackupAdminTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.superuser = User.objects.create_superuser(
+            username='aman',
+            password='password123',
+            email='aman@milestonemanagement.local'
+        )
+        self.regular_user = User.objects.create_user(
+            username='regular_staff',
+            password='password123',
+            is_staff=True,
+            is_superuser=False
+        )
+        self.project = Project.objects.create(
+            name='Test DB Backup Project',
+            code='PRJ-DB-001',
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=30),
+            owner=self.superuser
+        )
+
+    def test_database_manage_view_superuser_access(self):
+        """Superusers should have access to the database manage dashboard."""
+        self.client.login(username='aman', password='password123')
+        response = self.client.get('/admin/database-manage/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Database Backup & Restore")
+        self.assertContains(response, "Export Live Database")
+
+    def test_database_manage_view_denies_non_superuser(self):
+        """Non-superusers must receive 403 Forbidden."""
+        self.client.login(username='regular_staff', password='password123')
+        response = self.client.get('/admin/database-manage/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_database_export_streams_sqlite_file(self):
+        """Superuser export downloads a valid SQLite binary file."""
+        self.client.login(username='aman', password='password123')
+        response = self.client.get('/admin/database-export/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/x-sqlite3')
+        self.assertTrue('attachment' in response['Content-Disposition'])
+        self.assertTrue(response['Content-Disposition'].endswith('.sqlite3"'))
+
+    def test_database_import_rejects_corrupted_file(self):
+        """Corrupt or non-sqlite files must be rejected safely."""
+        self.client.login(username='aman', password='password123')
+        from io import BytesIO
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        fake_file = SimpleUploadedFile(
+            "bad_backup.sqlite3",
+            b"This is not a SQLite database file at all",
+            content_type="application/octet-stream"
+        )
+        response = self.client.post(
+            '/admin/database-import/',
+            {'database_file': fake_file},
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Database Import Rejected")
+
 
 
 

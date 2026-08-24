@@ -1,0 +1,93 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:"Milestone Management Admin" }}{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="icon" type="image/png" href="{% static 'img/logo_icon.png' %}">
+    <style>
+        :root {
+            --primary: #059669;
+            --secondary: #047857;
+            --accent: #10b981;
+            --primary-fg: #ffffff;
+            --body-bg: #0f172a;
+            --body-fg: #f8fafc;
+            --breadcrumbs-bg: #1e293b;
+            --breadcrumbs-link-fg: #34d399;
+            --breadcrumbs-fg: #94a3b8;
+            --link-fg: #34d399;
+            --link-hover-color: #6ee7b7;
+            --header-bg: #0f172a;
+            --header-color: #ffffff;
+            --header-link-color: #34d399;
+            --darkened-bg: #1e293b;
+            --selected-row: #064e3b;
+            --button-bg: #059669;
+            --button-hover-bg: #047857;
+            --default-button-bg: #10b981;
+            --default-button-hover-bg: #059669;
+        }
+        #header {
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+            padding: 10px 20px;
+        }
+        #branding h1 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #ffffff;
+        }
+        #branding h1 img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: #ffffff;
+            padding: 2px;
+        }
+        .admin-db-tool-link {
+            background: #059669;
+            color: #ffffff !important;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-right: 15px;
+            transition: background 0.2s ease;
+        }
+        .admin-db-tool-link:hover {
+            background: #10b981;
+            color: #ffffff !important;
+        }
+    </style>
+{% endblock %}
+
+{% block branding %}
+    <div id="branding">
+        <h1>
+            <img src="{% static 'img/logo_icon.png' %}" alt="Logo">
+            <span>Milestone Management</span>
+            <span style="font-size: 10px; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.4); margin-left: 4px; text-transform: uppercase;">Admin</span>
+        </h1>
+    </div>
+{% endblock %}
+
+{% block usertools %}
+    <div id="user-tools">
+        {% if user.is_superuser %}
+            <a href="{% url 'admin:database_manage' %}" class="admin-db-tool-link">
+                💾 Database Backup & Restore
+            </a>
+        {% endif %}
+        {{ block.super }}
+    </div>
+{% endblock %}

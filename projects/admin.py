@@ -178,3 +178,45 @@ class ActivityLogAdmin(admin.ModelAdmin):
     list_display = ('project', 'user', 'action', 'task', 'created_at')
     list_filter = ('project', 'action', 'created_at')
     search_fields = ('details', 'action', 'user__username')
+
+
+# ==============================================================================
+# Custom Django Admin URLs & Branding (Database Import / Export)
+# ==============================================================================
+from django.urls import path
+from projects.admin_database import (
+    database_manage_view,
+    database_export_view,
+    database_import_view,
+    database_restore_backup_view,
+    database_delete_backup_view,
+    get_database_stats
+)
+
+admin.site.site_header = "Milestone Management — Admin Portal"
+admin.site.site_title = "Milestone Management Portal"
+admin.site.index_title = "System Management & Database Administration"
+
+_original_get_urls = admin.site.get_urls
+_original_index = admin.site.index
+
+def _custom_admin_urls():
+    custom_urls = [
+        path('database-manage/', admin.site.admin_view(database_manage_view), name='database_manage'),
+        path('database-export/', admin.site.admin_view(database_export_view), name='database_export'),
+        path('database-import/', admin.site.admin_view(database_import_view), name='database_import'),
+        path('database-restore/<str:backup_name>/', admin.site.admin_view(database_restore_backup_view), name='database_restore_backup'),
+        path('database-delete/<str:backup_name>/', admin.site.admin_view(database_delete_backup_view), name='database_delete_backup'),
+    ]
+    return custom_urls + _original_get_urls()
+
+def _custom_admin_index(request, extra_context=None):
+    extra_context = extra_context or {}
+    try:
+        extra_context['db_stats'] = get_database_stats()
+    except Exception:
+        extra_context['db_stats'] = None
+    return _original_index(request, extra_context=extra_context)
+
+admin.site.get_urls = _custom_admin_urls
+admin.site.index = _custom_admin_index

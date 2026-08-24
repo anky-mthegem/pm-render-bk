@@ -49,6 +49,12 @@ A full-stack Project Management Web Application featuring interactive Gantt sche
 - **Edit & Delete Users**: Safe deletion with task unassignment protection.
 - **Workload & Assignment Integration**: Direct tracking of assigned tasks, active tasks, estimated hours, and actual hours across all projects.
 
+### 10. 💾 SQLite Database Import & Export in Django Admin (`/admin/`)
+- **1-Click Database Export**: Download the live, complete `db.sqlite3` file as a timestamped backup (`milestone_db_backup_YYYY-MM-DD.sqlite3`) directly from Django Admin.
+- **Safe Database Import (Restore)**: Upload any `.sqlite3`, `.db`, or `.sqlite` file with pre-flight format validation and `PRAGMA integrity_check`.
+- **Automatic Rollback Safeguard**: Automatically creates a rollback snapshot in `backups/pre_restore_backup_<timestamp>.sqlite3` before replacing data so no information is ever lost.
+- **Rollback History & 1-Click Restore**: View, download, restore, or delete previous rollback snapshots directly from the admin dashboard.
+
 ---
 
 ## 🚀 Quick Launch
@@ -61,14 +67,14 @@ A full-stack Project Management Web Application featuring interactive Gantt sche
 
 ## 🧪 Automated Test Suite
 
-All 9 automated unit tests passed:
+All 24 automated unit and integration tests passed:
 ```
 Creating test database for alias 'default'...
-Found 9 test(s).
+Found 24 test(s).
 System check identified no issues (0 silenced).
-.........
+........................
 ----------------------------------------------------------------------
-Ran 9 tests in 3.571s
+Ran 24 tests in 22.038s
 
 OK
 Destroying test database for alias 'default'...
