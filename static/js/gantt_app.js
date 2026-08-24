@@ -841,10 +841,6 @@ window.ganttApp = function(projectId) {
                 console.error('Export Gantt Image Error:', err);
                 this.showToast('Could not export Gantt chart image: ' + err.message, 'error');
             }
-        },
-
-        printGantt() {
-            window.print();
         }
     };
 };
