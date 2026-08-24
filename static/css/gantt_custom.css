@@ -1,0 +1,249 @@
+/* Gantt Excel Custom Styling & Frappe Gantt Dark Theme Overrides */
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Excel Grid Row Alignment */
+.excel-grid-row {
+    min-height: 44px;
+    height: 44px;
+    box-sizing: border-box;
+}
+.excel-grid-header {
+    height: 38px;
+}
+
+/* Frappe Gantt Container & SVG Styling */
+.gantt-container {
+    overflow: visible !important;
+    font-family: 'Inter', sans-serif !important;
+}
+
+.gantt {
+    user-select: none;
+}
+
+/* Grid & Background */
+.gantt .grid-background {
+    fill: #090d16 !important;
+}
+
+.gantt .grid-header {
+    fill: #161f2e !important;
+    stroke: #1e293b !important;
+    stroke-width: 1 !important;
+}
+
+.gantt .grid-row {
+    fill: transparent !important;
+    height: 44px !important;
+}
+
+.gantt .grid-row:nth-child(even) {
+    fill: rgba(30, 41, 59, 0.2) !important;
+}
+
+.gantt .row-line {
+    stroke: #1e293b !important;
+    stroke-width: 1 !important;
+}
+
+.gantt .tick {
+    stroke: #1e293b !important;
+    stroke-width: 1 !important;
+}
+
+.gantt .lower-text, .gantt .upper-text {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    fill: #94a3b8 !important;
+    font-weight: 500 !important;
+}
+
+.gantt .upper-text {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    fill: #cbd5e1 !important;
+}
+
+/* Highlight Today Column */
+.gantt .today-highlight {
+    fill: rgba(99, 102, 241, 0.1) !important;
+    stroke: rgba(99, 102, 241, 0.4) !important;
+    stroke-dasharray: 4 2 !important;
+}
+
+/* Bars Styling */
+.gantt .bar {
+    fill: #4f46e5 !important;
+    rx: 6px !important;
+    ry: 6px !important;
+    transition: filter 0.15s ease;
+    cursor: grab !important;
+}
+
+.gantt .bar:hover {
+    filter: brightness(1.15) drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));
+}
+
+.gantt .bar-progress {
+    fill: #10b981 !important;
+    rx: 6px !important;
+    ry: 6px !important;
+}
+
+.gantt .bar-label {
+    fill: #f8fafc !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    pointer-events: none;
+}
+
+.gantt .bar-label.big {
+    fill: #94a3b8 !important;
+    font-size: 11px !important;
+}
+
+/* Critical Path Bar Highlighting (Glowing Red/Rose) */
+.gantt .bar-critical-path-highlight .bar {
+    fill: #e11d48 !important;
+    stroke: #fda4af !important;
+    stroke-width: 2 !important;
+    filter: drop-shadow(0 0 8px rgba(225, 29, 72, 0.6)) !important;
+}
+.gantt .bar-critical-path-highlight .bar-progress {
+    fill: #fb7185 !important;
+}
+
+/* Baseline Ghost Bar in SVG */
+.gantt .baseline-ghost-bar {
+    fill: #475569 !important;
+    opacity: 0.6;
+    rx: 4px;
+    ry: 4px;
+    stroke: #64748b;
+    stroke-dasharray: 2 2;
+}
+
+/* Custom Status & Priority Bar Variants */
+.gantt .bar-completed .bar {
+    fill: #059669 !important;
+}
+.gantt .bar-completed .bar-progress {
+    fill: #10b981 !important;
+}
+
+.gantt .bar-delayed .bar,
+.gantt .bar-critical .bar {
+    fill: #e11d48 !important;
+}
+.gantt .bar-delayed .bar-progress,
+.gantt .bar-critical .bar-progress {
+    fill: #fb7185 !important;
+}
+
+.gantt .bar-high .bar {
+    fill: #d97706 !important;
+}
+.gantt .bar-high .bar-progress {
+    fill: #fbbf24 !important;
+}
+
+.gantt .bar-parent .bar {
+    fill: #3b82f6 !important;
+    height: 18px !important;
+}
+
+/* Milestone Diamond Bar */
+.gantt .bar-milestone .bar {
+    fill: #f59e0b !important;
+    filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.5));
+}
+.gantt .bar-milestone .bar-progress {
+    fill: #fbbf24 !important;
+}
+
+/* Dependency Arrow Lines */
+.gantt .arrow {
+    stroke: #818cf8 !important;
+    stroke-width: 1.75 !important;
+    fill: none !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+.gantt .arrow:hover {
+    stroke: #c7d2fe !important;
+    stroke-width: 2.5 !important;
+}
+
+/* Popup / Tooltip */
+.gantt-container .popup-wrapper {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border: 1px solid #334155 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6) !important;
+    padding: 12px 14px !important;
+    color: #f1f5f9 !important;
+    backdrop-filter: blur(8px) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11px !important;
+    z-index: 9999 !important;
+}
+
+.gantt-container .popup-wrapper .title {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid #1e293b !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 6px !important;
+}
+
+.gantt-container .popup-wrapper .subtitle {
+    color: #94a3b8 !important;
+    font-size: 11px !important;
+}
+
+.gantt-container .popup-wrapper .pointer {
+    border-top-color: #334155 !important;
+}
+
+/* Handles for resizing */
+.gantt .handle {
+    fill: #cbd5e1 !important;
+    cursor: ew-resize !important;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.gantt .bar-wrapper:hover .handle {
+    opacity: 0.8;
+}
+
+/* Kanban Board Styling */
+.kanban-col {
+    min-height: calc(100vh - 160px);
+}
+.kanban-card {
+    transition: all 0.15s ease;
+    cursor: grab;
+}
+.kanban-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}

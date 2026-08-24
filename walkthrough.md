@@ -1,0 +1,80 @@
+# Gantt Excel PRO: Enterprise Project Management Web Application
+
+A full-stack Project Management Web Application inspired by **Gantt Excel** featuring interactive Gantt scheduling, multi-view workspaces, Critical Path Method (CPM), baseline variance tracking, Kanban board, team workload capacity, Earned Value Management (EVM), and formatted Excel (.xlsx) import/export.
+
+---
+
+## 🌟 Comprehensive Feature Suite
+
+### 1. 📊 Interactive Gantt Excel & Work Breakdown Structure (WBS)
+- **Dual-Pane Layout**: Excel spreadsheet grid on the left synced with the interactive SVG timeline on the right.
+- **WBS Indexing**: Automatic hierarchical numbering (`1.0`, `1.1`, `1.1.1`).
+- **Drag-to-Move & Drag-to-Resize**: Reschedule dates or extend duration directly on the timeline.
+- **Milestones**: Zero-duration milestone indicators rendered as glowing diamond markers.
+- **Timeline Zoom Levels**: Switch between **Day**, **Week**, **Month**, and **Year** perspectives.
+
+### 2. 🎯 Critical Path Method (CPM) & Float Calculation
+- **Forward & Backward Pass Engine**: Automatically computes Early Start (`ES`), Early Finish (`EF`), Late Start (`LS`), and Late Finish (`LF`).
+- **Total Float (Slack)**: Computes available slack time before project completion is impacted.
+- **Visual Critical Path Highlighting**: Clicking the **Critical Path** toggle highlights all critical tasks with a glowing red/rose aura on the Gantt timeline and adds CPM tags on the grid.
+
+### 3. 📸 Baseline vs. Actual Schedule Tracking
+- **Snapshot Baselines**: Click **Snap Baseline** to record planned target dates.
+- **Variance Tracking**: Automatic calculation of **Schedule Variance (days)**.
+- **Visual Comparison**: Slipped tasks are highlighted to reveal schedule risk.
+
+### 4. 📋 Interactive Kanban Board
+- **4 Workflow Columns**: *Not Started*, *In Progress*, *Delayed / Critical*, and *Complete*.
+- **Drag & Drop**: Move task cards across columns to update task status and progress in real time.
+
+### 5. 👥 Team Workload & Capacity Heatmap
+- **Capacity Balancing**: Real-time aggregation of total tasks, estimated hours, and realized hours per team member.
+- **Over-allocation Alerts**: Flags team members with heavy task overlaps.
+
+### 6. 💰 Financials & Earned Value Management (EVM - INR ₹)
+- Tracks **Planned Value (PV)**, **Earned Value (EV)**, and **Actual Cost (AC)** in Indian Rupees (**INR - `₹`**).
+- Real-time **Cost Performance Index (CPI)** and **Schedule Performance Index (SPI)** indicators.
+- Indian Numbering System formatting (Lakhs / Crores, e.g. `₹25,00,000`, `₹1,50,000`).
+
+### 7. 📑 Formatted Excel (.xlsx) Export & Import (Indian Standard)
+- **Export**: One-click download of stylized Excel spreadsheets with Indian Rupee formatting (`₹#,##,##0.00`), **DD/MM/YYYY** dates, and effort in **Man-Hours**.
+- **Import**: Ingest tasks and dates supporting both **DD/MM/YYYY** and ISO formats.
+
+### 8. 💬 Task Comments, Attachments & Activity Audit Trail
+- Multi-tab Task Drawer: **Details**, **Dependencies**, **Cost & Effort**, and **Comments**.
+- Full chronological activity feed tracking all changes.
+
+### 9. 👥 Team & User Management (`/team/`)
+- **Add Team Members**: Create new team users (e.g. *Sarah Jenkins* with ID `@sarah_pm`) with First/Last Name, Username ID, Email, Role, and Password.
+- **Edit & Delete Users**: Safe deletion with task unassignment protection (master admin `@aman` is permanently protected).
+- **Workload & Assignment Integration**: Direct tracking of assigned tasks, active tasks, estimated hours, and actual hours across all projects.
+
+---
+
+## 🚀 Quick Launch & Credentials
+
+### Master Admin Login
+Navigate to **`http://127.0.0.1:8000/login/`**:
+- **Username**: `aman`
+- **Password**: `123456`
+
+### Running the App:
+- **Double-click**: `run_app.bat` (or `start.bat`)
+- **Terminal**: `python manage.py runserver 127.0.0.1:8000`
+
+---
+
+## 🧪 Automated Test Suite
+
+All 9 automated unit tests passed:
+```
+Creating test database for alias 'default'...
+Found 9 test(s).
+System check identified no issues (0 silenced).
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 3.571s
+
+OK
+Destroying test database for alias 'default'...
+```
