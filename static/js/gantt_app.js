@@ -780,6 +780,71 @@ window.ganttApp = function(projectId) {
             const year = d.getFullYear();
             const time = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
             return `${day}/${month}/${year}, ${time} IST`;
+        },
+
+        exportGanttImage() {
+            const svg = document.getElementById('gantt-svg');
+            if (!svg) {
+                this.showToast('Gantt chart element not found', 'error');
+                return;
+            }
+            try {
+                const clone = svg.cloneNode(true);
+                clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                
+                const rect = svg.getBoundingClientRect();
+                let bbox = { width: 1200, height: 600 };
+                try { bbox = svg.getBBox(); } catch(e) {}
+                const width = Math.max(svg.scrollWidth || 1200, bbox.width + 60);
+                const height = Math.max(svg.scrollHeight || 600, bbox.height + 60);
+                clone.setAttribute('width', width);
+                clone.setAttribute('height', height);
+
+                const svgString = new XMLSerializer().serializeToString(clone);
+                const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+                const blobURL = URL.createObjectURL(svgBlob);
+
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width * 2;
+                    canvas.height = height * 2;
+                    const ctx = canvas.getContext('2d');
+                    ctx.scale(2, 2);
+
+                    // Background fill
+                    ctx.fillStyle = '#0f172a';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 10, 10);
+
+                    const pngData = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = pngData;
+                    a.download = `${(this.projectMeta.name || 'Milestone_Project').replace(/[^a-zA-Z0-9_-]/g, '_')}_Gantt_Chart.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(blobURL);
+                    this.showToast('Gantt chart image exported successfully (PNG)!', 'success');
+                };
+                img.onerror = () => {
+                    const a = document.createElement('a');
+                    a.href = blobURL;
+                    a.download = `${(this.projectMeta.name || 'Milestone_Project').replace(/[^a-zA-Z0-9_-]/g, '_')}_Gantt_Chart.svg`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    this.showToast('Gantt chart exported as SVG vector image!', 'success');
+                };
+                img.src = blobURL;
+            } catch (err) {
+                console.error('Export Gantt Image Error:', err);
+                this.showToast('Could not export Gantt chart image: ' + err.message, 'error');
+            }
+        },
+
+        printGantt() {
+            window.print();
         }
     };
 };
