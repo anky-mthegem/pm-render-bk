@@ -10,6 +10,8 @@ env/
 venv/
 ENV/
 runtime/
+backups/
+*.backup*
 
 # IDE & OS
 .vscode/
