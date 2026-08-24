@@ -3,12 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Environments
+# Environments & Portable Runtimes
 .env
 .venv
 env/
 venv/
 ENV/
+runtime/
 
 # IDE & OS
 .vscode/
