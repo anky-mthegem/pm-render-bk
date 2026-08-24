@@ -352,3 +352,35 @@ def compute_wbs_hierarchy(project) -> List[Dict]:
 
     traverse(None, "", 0)
     return result
+
+
+def get_hierarchical_task_list(project) -> List:
+    """
+    Returns Task model instances in hierarchical DFS tree order with pre-attached
+    _computed_wbs, _computed_depth, and _has_children.
+    """
+    from projects.models import Task
+
+    all_tasks = list(
+        project.tasks.select_related('assignee', 'parent_task')
+        .prefetch_related('predecessors', 'successors')
+        .order_by('sort_order', 'id')
+    )
+    children_map: Dict[Optional[int], List[Task]] = defaultdict(list)
+    for t in all_tasks:
+        children_map[t.parent_task_id].append(t)
+
+    result = []
+
+    def traverse(parent_id: Optional[int], prefix: str, depth: int):
+        tasks = children_map.get(parent_id, [])
+        for idx, task in enumerate(tasks, 1):
+            wbs = f"{prefix}{idx}" if prefix else f"{idx}"
+            task._computed_wbs = wbs
+            task._computed_depth = depth
+            task._has_children = bool(children_map.get(task.id))
+            result.append(task)
+            traverse(task.id, f"{wbs}.", depth + 1)
+
+    traverse(None, "", 0)
+    return result

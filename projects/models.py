@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from django.utils import timezone
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 
 
 class ProjectStatus(models.TextChoices):
@@ -284,7 +284,10 @@ class Task(models.Model):
         if self.assignee and self.assignee.username == 'aman':
             raise ValidationError({'assignee': "Master user 'aman' is reserved for administration only and cannot be assigned to tasks."})
 
-        if self.start_date and self.end_date and self.end_date < self.start_date:
+        s_date = self.start_date.date() if isinstance(self.start_date, (timezone.datetime, datetime)) else self.start_date
+        e_date = self.end_date.date() if isinstance(self.end_date, (timezone.datetime, datetime)) else self.end_date
+
+        if s_date and e_date and e_date < s_date:
             raise ValidationError({'end_date': "End date cannot be earlier than start date."})
 
         if self.parent_task:
@@ -306,9 +309,12 @@ class Task(models.Model):
         if self.assignee and self.assignee.username == 'aman':
             raise ValidationError("Master user 'aman' is reserved for administration only and cannot be assigned to tasks.")
 
+        s_date = self.start_date.date() if isinstance(self.start_date, (timezone.datetime, datetime)) else self.start_date
+        e_date = self.end_date.date() if isinstance(self.end_date, (timezone.datetime, datetime)) else self.end_date
+
         # Calculate duration
-        if self.start_date and self.end_date:
-            self.duration_days = max(1, (self.end_date - self.start_date).days + 1)
+        if s_date and e_date:
+            self.duration_days = max(1, (e_date - s_date).days + 1)
         elif not self.duration_days:
             self.duration_days = 1
 
@@ -326,8 +332,8 @@ class Task(models.Model):
             self.status = TaskStatus.NOT_STARTED
 
         # Overdue check
-        today = timezone.now().date() if isinstance(timezone.now(), timezone.datetime) else date.today()
-        if self.end_date and self.end_date < today and self.progress < 100:
+        today = date.today()
+        if e_date and e_date < today and self.progress < 100:
             if self.status != TaskStatus.COMPLETE:
                 self.status = TaskStatus.DELAYED
 
@@ -346,9 +352,11 @@ class Task(models.Model):
 
     @property
     def wbs_code(self):
-        """Calculate dynamic WBS hierarchical index (e.g. 1.2.1)."""
-        if not self.parent_task:
-            siblings = Task.objects.filter(project=self.project, parent_task__isnull=True).order_by('sort_order', 'id')
+        """Calculate dynamic WBS hierarchical index (e.g. 1, 1.1, 1.1.1, 2, 2.1)."""
+        if hasattr(self, '_computed_wbs') and self._computed_wbs:
+            return self._computed_wbs
+        if not self.parent_task_id:
+            siblings = Task.objects.filter(project_id=self.project_id, parent_task__isnull=True).order_by('sort_order', 'id')
             ids = list(siblings.values_list('id', flat=True))
             try:
                 idx = ids.index(self.id) + 1
@@ -356,14 +364,27 @@ class Task(models.Model):
             except ValueError:
                 return "1"
         else:
-            parent_code = self.parent_task.wbs_code
-            siblings = Task.objects.filter(project=self.project, parent_task=self.parent_task).order_by('sort_order', 'id')
+            parent = self.parent_task
+            parent_code = parent.wbs_code if parent else "1"
+            siblings = Task.objects.filter(project_id=self.project_id, parent_task_id=self.parent_task_id).order_by('sort_order', 'id')
             ids = list(siblings.values_list('id', flat=True))
             try:
                 idx = ids.index(self.id) + 1
                 return f"{parent_code}.{idx}"
             except ValueError:
                 return f"{parent_code}.1"
+
+    @property
+    def depth(self):
+        """Hierarchical nesting depth (0 = root task, 1 = subtask, 2 = sub-subtask)."""
+        if hasattr(self, '_computed_depth'):
+            return self._computed_depth
+        d = 0
+        p = self.parent_task
+        while p and d < 10:
+            d += 1
+            p = p.parent_task
+        return d
 
     def recalculate_from_subtasks(self):
         """Roll up dates, progress, and costs from children subtasks."""

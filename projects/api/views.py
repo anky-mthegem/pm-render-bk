@@ -2,7 +2,8 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from django.db import transaction
+from django.db import transaction, models
+from django.db.models import F, Max
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from datetime import datetime
@@ -22,7 +23,7 @@ from projects.api.serializers import (
 from projects.services.scheduler import (
     cascade_reschedule, check_dependency_cycle, compute_wbs_hierarchy,
     calculate_critical_path, save_project_baseline, calculate_evm_metrics,
-    calculate_resource_workload
+    calculate_resource_workload, get_hierarchical_task_list
 )
 from projects.services.excel_service import (
     export_project_to_excel, import_project_from_excel
@@ -67,7 +68,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project = self.get_object()
         calculate_critical_path(project)
 
-        tasks = project.tasks.select_related('assignee', 'parent_task').prefetch_related('predecessors', 'successors').order_by('sort_order', 'id')
+        tasks = get_hierarchical_task_list(project)
         
         gantt_tasks = GanttTaskItemSerializer(tasks, many=True).data
         full_tasks = TaskSerializer(tasks, many=True).data
@@ -205,8 +206,34 @@ class TaskViewSet(viewsets.ModelViewSet):
         return qs.order_by('sort_order', 'id')
 
     def perform_create(self, serializer):
+        insert_after_id = self.request.data.get('insert_after_task_id')
+        
         with transaction.atomic():
             task = serializer.save()
+            project = task.project
+
+            if insert_after_id:
+                try:
+                    ref_task = Task.objects.get(pk=insert_after_id, project=project)
+                    Task.objects.filter(project=project, sort_order__gt=ref_task.sort_order).exclude(pk=task.id).update(sort_order=F('sort_order') + 1)
+                    task.sort_order = ref_task.sort_order + 1
+                    task.save(update_fields=['sort_order'])
+                except (Task.DoesNotExist, ValueError):
+                    pass
+            elif task.parent_task:
+                last_sibling = Task.objects.filter(project=project, parent_task=task.parent_task).exclude(pk=task.id).order_by('-sort_order').first()
+                if last_sibling:
+                    ref_order = last_sibling.sort_order
+                else:
+                    ref_order = task.parent_task.sort_order
+                Task.objects.filter(project=project, sort_order__gt=ref_order).exclude(pk=task.id).update(sort_order=F('sort_order') + 1)
+                task.sort_order = ref_order + 1
+                task.save(update_fields=['sort_order'])
+            elif not task.sort_order:
+                max_order = Task.objects.filter(project=project).exclude(pk=task.id).aggregate(m=Max('sort_order'))['m'] or 0
+                task.sort_order = max_order + 1
+                task.save(update_fields=['sort_order'])
+
             if task.parent_task:
                 task.parent_task.recalculate_from_subtasks()
             cascade_reschedule(task)
@@ -253,6 +280,54 @@ class TaskViewSet(viewsets.ModelViewSet):
                 parent.recalculate_from_subtasks()
             calculate_critical_path(project)
             project.save()
+
+    @action(detail=True, methods=['post'], url_path='move-up')
+    def move_up(self, request, pk=None):
+        task = self.get_object()
+        siblings = list(Task.objects.filter(
+            project=task.project,
+            parent_task_id=task.parent_task_id
+        ).order_by('sort_order', 'id'))
+        
+        idx = next((i for i, t in enumerate(siblings) if t.id == task.id), None)
+        if idx is not None and idx > 0:
+            prev_task = siblings[idx - 1]
+            t_order = task.sort_order
+            p_order = prev_task.sort_order
+            if t_order == p_order or t_order <= p_order:
+                task.sort_order = max(0, p_order - 1)
+            else:
+                task.sort_order, prev_task.sort_order = p_order, t_order
+            with transaction.atomic():
+                task.save(update_fields=['sort_order'])
+                prev_task.save(update_fields=['sort_order'])
+                calculate_critical_path(task.project)
+            return Response({'status': 'success', 'message': f"Task '{task.name}' moved up."})
+        return Response({'status': 'noop', 'message': 'Task is already at the top of its level.'})
+
+    @action(detail=True, methods=['post'], url_path='move-down')
+    def move_down(self, request, pk=None):
+        task = self.get_object()
+        siblings = list(Task.objects.filter(
+            project=task.project,
+            parent_task_id=task.parent_task_id
+        ).order_by('sort_order', 'id'))
+        
+        idx = next((i for i, t in enumerate(siblings) if t.id == task.id), None)
+        if idx is not None and idx < len(siblings) - 1:
+            next_task = siblings[idx + 1]
+            t_order = task.sort_order
+            n_order = next_task.sort_order
+            if t_order == n_order or t_order >= n_order:
+                task.sort_order = n_order + 1
+            else:
+                task.sort_order, next_task.sort_order = n_order, t_order
+            with transaction.atomic():
+                task.save(update_fields=['sort_order'])
+                next_task.save(update_fields=['sort_order'])
+                calculate_critical_path(task.project)
+            return Response({'status': 'success', 'message': f"Task '{task.name}' moved down."})
+        return Response({'status': 'noop', 'message': 'Task is already at the bottom of its level.'})
 
     @action(detail=True, methods=['patch'], url_path='reschedule')
     def reschedule(self, request, pk=None):

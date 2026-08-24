@@ -98,6 +98,7 @@ class TaskDependencySerializer(serializers.ModelSerializer):
 
 class TaskSerializer(serializers.ModelSerializer):
     wbs_code = serializers.CharField(read_only=True)
+    depth = serializers.IntegerField(read_only=True)
     is_parent = serializers.BooleanField(read_only=True)
     schedule_variance_days = serializers.IntegerField(read_only=True)
     assignee_detail = UserSerializer(source='assignee', read_only=True)
@@ -112,7 +113,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'id', 'project', 'parent_task', 'name', 'description',
             'start_date', 'end_date', 'duration_days', 'progress',
             'status', 'priority', 'is_milestone', 'assignee', 'assignee_detail',
-            'sort_order', 'wbs_code', 'is_parent', 'is_critical',
+            'sort_order', 'wbs_code', 'depth', 'is_parent', 'is_critical',
             'total_float_days', 'early_start', 'early_finish', 'late_start', 'late_finish',
             'baseline_start_date', 'baseline_end_date', 'baseline_duration_days',
             'schedule_variance_days', 'estimated_cost', 'actual_cost',

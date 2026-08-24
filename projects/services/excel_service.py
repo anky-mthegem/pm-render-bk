@@ -7,6 +7,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 from projects.models import Task, TaskDependency, Project
+from projects.services.scheduler import get_hierarchical_task_list
 
 
 def export_project_to_excel(project: Project) -> io.BytesIO:
@@ -60,7 +61,7 @@ def export_project_to_excel(project: Project) -> io.BytesIO:
         bottom=Side(style='thin', color='CBD5E1')
     )
 
-    tasks = list(project.tasks.select_related('assignee', 'parent_task').prefetch_related('predecessors').order_by('sort_order', 'id'))
+    tasks = get_hierarchical_task_list(project)
 
     # ==========================================================================
     # SHEET 1: Gantt Chart & Visual Timeline

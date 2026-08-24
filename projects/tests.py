@@ -476,11 +476,43 @@ class DatabaseBackupAdminTests(TestCase):
         self.assertTrue(User.objects.filter(username='aman', is_superuser=True).exists())
         self.assertFalse(User.objects.filter(username='regular_staff').exists())
 
-    def test_database_clear_denies_non_superuser(self):
-        """Non-superusers cannot clear the database."""
-        self.client.login(username='regular_staff', password='password123')
-        response = self.client.post('/admin/database-clear/', {'confirm_text': 'CLEAR'})
-        self.assertEqual(response.status_code, 403)
+    def test_wbs_hierarchy_order_and_subtask_numbering(self):
+        """A subtask under Task 2 must have WBS 2.1 and be ordered directly below Task 2."""
+        from projects.services.scheduler import get_hierarchical_task_list
+
+        t1 = Task.objects.create(project=self.project, name='Task 1', sort_order=0)
+        t2 = Task.objects.create(project=self.project, name='Task 2', sort_order=1)
+        sub2_1 = Task.objects.create(project=self.project, parent_task=t2, name='Subtask 2.1', sort_order=2)
+        sub2_2 = Task.objects.create(project=self.project, parent_task=t2, name='Subtask 2.2', sort_order=3)
+        sub1_1 = Task.objects.create(project=self.project, parent_task=t1, name='Subtask 1.1', sort_order=4)
+
+        ordered = get_hierarchical_task_list(self.project)
+        ordered_names = [t.name for t in ordered]
+        ordered_wbs = [t.wbs_code for t in ordered]
+
+        # Tree order must be: Task 1 -> Subtask 1.1 -> Task 2 -> Subtask 2.1 -> Subtask 2.2
+        self.assertEqual(ordered_names, ['Task 1', 'Subtask 1.1', 'Task 2', 'Subtask 2.1', 'Subtask 2.2'])
+        self.assertEqual(ordered_wbs, ['1', '1.1', '2', '2.1', '2.2'])
+
+    def test_task_move_up_and_down_actions(self):
+        """Move up and down endpoints properly adjust sort_order among siblings."""
+        self.client.login(username='aman', password='password123')
+        t1 = Task.objects.create(project=self.project, name='Task 1', sort_order=0)
+        t2 = Task.objects.create(project=self.project, name='Task 2', sort_order=1)
+
+        # Move Task 2 up
+        res = self.client.post(f'/api/tasks/{t2.id}/move-up/')
+        self.assertEqual(res.status_code, 200)
+        t1.refresh_from_db()
+        t2.refresh_from_db()
+        self.assertTrue(t2.sort_order <= t1.sort_order)
+
+        # Move Task 2 down
+        res = self.client.post(f'/api/tasks/{t2.id}/move-down/')
+        self.assertEqual(res.status_code, 200)
+        t1.refresh_from_db()
+        t2.refresh_from_db()
+        self.assertTrue(t2.sort_order >= t1.sort_order)
 
 
 

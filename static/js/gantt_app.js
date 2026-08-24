@@ -171,6 +171,7 @@ window.ganttApp = function(projectId) {
 
             this.filteredTasks = filtered;
             this.refreshGanttChart();
+            if (window.lucide) setTimeout(lucide.createIcons, 50);
         },
 
         getTasksByStatus(status) {
@@ -473,15 +474,16 @@ window.ganttApp = function(projectId) {
             if (window.lucide) setTimeout(lucide.createIcons, 50);
         },
 
-        openNewTaskModal(isMilestone = false) {
+        openNewTaskModal(isMilestone = false, insertAfterTaskId = null) {
             this.isCreating = true;
             this.modalTab = 'general';
             const todayStr = new Date().toISOString().substring(0, 10);
             this.editForm = {
                 id: null,
-                name: isMilestone ? 'New Key Milestone' : 'New Project Task',
+                name: isMilestone ? 'New Key Milestone' : 'New Task',
                 description: '',
                 parent_task: null,
+                insert_after_task_id: insertAfterTaskId,
                 assignee: null,
                 start_date: todayStr,
                 end_date: todayStr,
@@ -504,11 +506,53 @@ window.ganttApp = function(projectId) {
         },
 
         openSubtaskModal(parentTask) {
-            this.openNewTaskModal(false);
+            this.openNewTaskModal(false, null);
             this.editForm.parent_task = parentTask.id;
             this.editForm.name = `Subtask of ${parentTask.name}`;
             this.editForm.start_date = parentTask.start_date ? parentTask.start_date.substring(0, 10) : this.editForm.start_date;
             this.editForm.end_date = parentTask.end_date ? parentTask.end_date.substring(0, 10) : this.editForm.end_date;
+        },
+
+        insertTaskBelow(refTask) {
+            this.openNewTaskModal(false, refTask.id);
+            this.editForm.parent_task = refTask.parent_task;
+            this.editForm.name = `Task after ${refTask.name}`;
+            this.editForm.start_date = refTask.end_date ? refTask.end_date.substring(0, 10) : this.editForm.start_date;
+            this.editForm.end_date = refTask.end_date ? refTask.end_date.substring(0, 10) : this.editForm.end_date;
+        },
+
+        async moveTaskUp(task) {
+            try {
+                const res = await fetch(`/api/tasks/${task.id}/move-up/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    await this.loadData();
+                    this.refreshGanttChart();
+                    if (data.status === 'success') this.showToast(data.message, 'success');
+                }
+            } catch (err) {
+                console.error("Move task up error:", err);
+            }
+        },
+
+        async moveTaskDown(task) {
+            try {
+                const res = await fetch(`/api/tasks/${task.id}/move-down/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    await this.loadData();
+                    this.refreshGanttChart();
+                    if (data.status === 'success') this.showToast(data.message, 'success');
+                }
+            } catch (err) {
+                console.error("Move task down error:", err);
+            }
         },
 
         onDateChange() {
@@ -531,8 +575,9 @@ window.ganttApp = function(projectId) {
                 project: this.projectId,
                 name: this.editForm.name,
                 description: this.editForm.description,
-                parent_task: this.editForm.parent_task,
-                assignee: this.editForm.assignee,
+                parent_task: this.editForm.parent_task ? parseInt(this.editForm.parent_task) : null,
+                insert_after_task_id: this.editForm.insert_after_task_id ? parseInt(this.editForm.insert_after_task_id) : null,
+                assignee: this.editForm.assignee ? parseInt(this.editForm.assignee) : null,
                 start_date: this.editForm.start_date,
                 end_date: this.editForm.end_date,
                 duration_days: this.editForm.duration_days,
