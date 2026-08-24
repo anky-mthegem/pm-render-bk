@@ -36,7 +36,7 @@ class ProjectMemberSerializer(serializers.ModelSerializer):
 
 
 class TaskCommentSerializer(serializers.ModelSerializer):
-    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    author_name = serializers.SerializerMethodField()
     author_username = serializers.CharField(source='author.username', read_only=True)
     author_initials = serializers.SerializerMethodField()
 
@@ -45,7 +45,14 @@ class TaskCommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'task', 'author', 'author_name', 'author_username', 'author_initials', 'text', 'created_at']
         read_only_fields = ['author']
 
+    def get_author_name(self, obj):
+        if not obj.author:
+            return "Anonymous"
+        return obj.author.get_full_name() or obj.author.username
+
     def get_author_initials(self, obj):
+        if not obj.author:
+            return "SY"
         name = obj.author.get_full_name() or obj.author.username
         parts = name.split()
         if len(parts) >= 2:
@@ -54,20 +61,31 @@ class TaskCommentSerializer(serializers.ModelSerializer):
 
 
 class TaskAttachmentSerializer(serializers.ModelSerializer):
-    uploaded_by_name = serializers.CharField(source='uploaded_by.get_full_name', read_only=True)
+    uploaded_by_name = serializers.SerializerMethodField()
 
     class Meta:
         model = TaskAttachment
         fields = ['id', 'task', 'file', 'filename', 'file_size', 'uploaded_by', 'uploaded_by_name', 'created_at']
         read_only_fields = ['uploaded_by', 'file_size']
 
+    def get_uploaded_by_name(self, obj):
+        if not obj.uploaded_by:
+            return "System"
+        return obj.uploaded_by.get_full_name() or obj.uploaded_by.username
+
 
 class ActivityLogSerializer(serializers.ModelSerializer):
-    user_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    user_name = serializers.SerializerMethodField()
+    username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = ActivityLog
-        fields = ['id', 'project', 'task', 'user', 'user_name', 'action', 'details', 'created_at']
+        fields = ['id', 'project', 'task', 'user', 'user_name', 'username', 'action', 'details', 'created_at']
+
+    def get_user_name(self, obj):
+        if not obj.user:
+            return "System"
+        return obj.user.get_full_name() or obj.user.username
 
 
 class TaskDependencySerializer(serializers.ModelSerializer):
@@ -269,7 +287,7 @@ class GanttTaskItemSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    owner_name = serializers.CharField(source='owner.get_full_name', read_only=True)
+    owner_name = serializers.SerializerMethodField()
     progress = serializers.IntegerField(read_only=True)
     total_tasks_count = serializers.IntegerField(read_only=True)
     completed_tasks_count = serializers.IntegerField(read_only=True)
@@ -279,14 +297,18 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            'id', 'name', 'code', 'description', 'start_date', 'end_date',
-            'status', 'owner', 'owner_name', 'progress', 'budget',
-            'exclude_weekends', 'baseline_saved_at',
-            'total_tasks_count', 'completed_tasks_count',
+            'id', 'name', 'code', 'description', 'status',
+            'start_date', 'end_date', 'budget', 'owner', 'owner_name',
+            'progress', 'total_tasks_count', 'completed_tasks_count',
             'total_estimated_cost', 'total_actual_cost',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['owner', 'code']
+
+    def get_owner_name(self, obj):
+        if not obj.owner:
+            return "System"
+        return obj.owner.get_full_name() or obj.owner.username
 
 
 class ProjectDetailSerializer(ProjectSerializer):

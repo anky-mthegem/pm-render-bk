@@ -596,7 +596,10 @@
                         </div>
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
-                                <span class="font-bold text-white" x-text="log.user_name || 'System'"></span>
+                                <div>
+                                    <span class="font-bold text-white" x-text="log.user_name || log.username || 'System'"></span>
+                                    <span x-show="log.username && log.user_name && log.user_name !== log.username" class="text-[10px] text-slate-400 font-normal ml-1" x-text="`(@${log.username})`"></span>
+                                </div>
                                 <span class="text-[10px] text-slate-500 font-mono" x-text="formatDateFull(log.created_at)"></span>
                             </div>
                             <p class="text-slate-300 mt-0.5"><strong class="text-brand-300" x-text="log.action"></strong>: <span x-text="log.details"></span></p>
