@@ -740,7 +740,7 @@
                             <template x-for="dep in editForm.predecessors_list" :key="dep.id">
                                 <div class="flex items-center justify-between p-2 rounded-lg bg-slate-800/80 border border-slate-700/80">
                                     <div class="flex items-center space-x-2">
-                                        <span class="px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono text-[10px] font-semibold" x-text="dep.dependency_type"></span>
+                                        <span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono text-[10px] font-semibold" x-text="getDependencyTypeLabel(dep.dependency_type)"></span>
                                         <span class="text-slate-200 font-medium" x-text="dep.predecessor_name"></span>
                                         <span class="text-[10px] text-slate-400 font-mono" x-show="dep.lag_days" x-text="`(+${dep.lag_days}d lag)`"></span>
                                     </div>
@@ -755,8 +755,9 @@
                         <!-- Add Predecessor -->
                         <div class="p-3 bg-slate-850 border border-slate-800 rounded-xl space-y-2">
                             <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Add Predecessor Link</span>
-                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                                <div class="sm:col-span-2">
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                                <div class="sm:col-span-5">
+                                    <label class="block text-[10px] text-slate-400 mb-0.5">Predecessor Task</label>
                                     <select x-model="newDep.from_task" class="w-full px-2 py-1.5 bg-slate-800 border border-slate-700 rounded-md text-slate-200 text-xs">
                                         <option value="">Select Predecessor Task...</option>
                                         <template x-for="t in tasks" :key="t.id">
@@ -764,14 +765,15 @@
                                         </template>
                                     </select>
                                 </div>
-                                <div>
+                                <div class="sm:col-span-5">
+                                    <label class="block text-[10px] text-slate-400 mb-0.5">Relationship Type</label>
                                     <select x-model="newDep.dependency_type" class="w-full px-2 py-1.5 bg-slate-800 border border-slate-700 rounded-md text-slate-200 text-xs">
                                         {% for val, label in dependency_types %}
-                                        <option value="{{ val }}">{{ val }}</option>
+                                        <option value="{{ val }}">{{ label }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <div>
+                                <div class="sm:col-span-2 pt-3.5">
                                     <button type="button" @click="addDependency()"
                                             class="w-full py-1.5 px-3 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs flex items-center justify-center gap-1">
                                         <i data-lucide="link" class="w-3.5 h-3.5"></i>

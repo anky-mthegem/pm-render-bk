@@ -86,6 +86,20 @@ window.ganttApp = function(projectId) {
             { status: 'COMPLETE', label: 'Complete', badgeColor: 'bg-emerald-500' }
         ],
 
+        getDependencyTypeLabel(type) {
+            const map = {
+                'FS': 'Finish-to-Start (FS)',
+                'SS': 'Start-to-Start (SS)',
+                'FF': 'Finish-to-Finish (FF)',
+                'SF': 'Start-to-Finish (SF)'
+            };
+            return map[type] || type;
+        },
+
+        get currentProjectName() {
+            return this.tasks.filter(t => t.status === 'COMPLETE').length;
+        },
+
         get completedCount() {
             return this.tasks.filter(t => t.status === 'COMPLETE').length;
         },
