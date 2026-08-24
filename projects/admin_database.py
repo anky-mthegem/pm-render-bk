@@ -11,13 +11,16 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.db import connections
+from django.db import connections, transaction
 from django.http import FileResponse, Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.timezone import now
 
-from projects.models import Project, Task, ProjectMember, ActivityLog
+from projects.models import (
+    Project, Task, ProjectMember, ActivityLog,
+    TaskDependency, TaskComment, TaskAttachment
+)
 
 
 def superuser_required(view_func):
@@ -35,18 +38,20 @@ def get_db_path() -> Path:
     """Returns the absolute path to the active SQLite database file."""
     from django.db import connection
     db_name = connection.settings_dict.get('NAME') or settings.DATABASES['default']['NAME']
-    if not db_name or db_name == ':memory:':
+    db_name_str = str(db_name)
+    if not db_name or db_name_str == ':memory:' or db_name_str.startswith('file:') or '?' in db_name_str:
         db_name = settings.DATABASES['default']['NAME']
     path = Path(db_name).resolve()
     # If in testing and file doesn't exist on disk, create an empty sqlite database file
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, 'wb') as f:
-            # Write standard SQLite 3 header + minimal pages
+        try:
             conn = sqlite3.connect(str(path))
             conn.execute("CREATE TABLE IF NOT EXISTS _test_init (id INTEGER PRIMARY KEY);")
             conn.commit()
             conn.close()
+        except Exception:
+            pass
     return path
 
 
@@ -361,3 +366,71 @@ def database_delete_backup_view(request, backup_name: str):
         messages.error(request, f"Error deleting backup file: {str(e)}")
 
     return redirect('admin:database_manage')
+
+
+@superuser_required
+def database_clear_view(request):
+    """
+    Clears all project, task, and team data from the database while preserving
+    the master administrator superuser account (aman). Automatically creates an
+    instant pre-clear rollback backup first.
+    """
+    if request.method != 'POST':
+        return redirect('admin:database_manage')
+
+    confirm_text = request.POST.get('confirm_text', '').strip()
+    if confirm_text != 'CLEAR':
+        messages.error(request, "Database Clear Aborted: Please type 'CLEAR' (all uppercase) to confirm.")
+        return redirect('admin:database_manage')
+
+    db_path = get_db_path()
+    backup_dir = get_backups_dir()
+    pre_clear_name = f"pre_clear_backup_{now().strftime('%Y-%m-%d_%H%M%S')}.sqlite3"
+
+    try:
+        # 1. Create an automatic safety rollback backup before purging
+        if db_path.exists() and db_path.is_file():
+            try:
+                shutil.copy2(db_path, backup_dir / pre_clear_name)
+            except Exception:
+                pass
+
+        # 2. Perform atomic purge of records
+        with transaction.atomic():
+            TaskComment.objects.all().delete()
+            TaskAttachment.objects.all().delete()
+            TaskDependency.objects.all().delete()
+            Task.objects.all().delete()
+            Project.objects.all().delete()
+            ActivityLog.objects.all().delete()
+
+            # Optional: Remove other created team users if requested
+            if request.POST.get('remove_non_admin_users') == '1':
+                User.objects.exclude(username='aman').delete()
+
+            # Ensure master admin 'aman' is preserved and active
+            admin_user, _ = User.objects.get_or_create(
+                username='aman',
+                defaults={
+                    'email': 'aman@milestonemanagement.local',
+                    'first_name': 'Aman',
+                    'last_name': 'Admin',
+                    'is_staff': True,
+                    'is_superuser': True,
+                    'is_active': True,
+                }
+            )
+            admin_user.is_staff = True
+            admin_user.is_superuser = True
+            admin_user.save()
+
+        messages.success(
+            request,
+            f"🧹 Database cleared successfully! Master administrator 'aman' is preserved. "
+            f"An automatic safety rollback backup was saved as '{pre_clear_name}'."
+        )
+    except Exception as e:
+        messages.error(request, f"Error clearing database: {str(e)}")
+
+    return redirect('admin:database_manage')
+

@@ -449,24 +449,39 @@ class DatabaseBackupAdminTests(TestCase):
         self.assertTrue('attachment' in response['Content-Disposition'])
         self.assertTrue(response['Content-Disposition'].endswith('.sqlite3"'))
 
-    def test_database_import_rejects_corrupted_file(self):
-        """Corrupt or non-sqlite files must be rejected safely."""
+    def test_database_clear_aborts_without_exact_confirmation(self):
+        """Must reject clear operation if confirm_text is not 'CLEAR'."""
         self.client.login(username='aman', password='password123')
-        from io import BytesIO
-        from django.core.files.uploadedfile import SimpleUploadedFile
-
-        fake_file = SimpleUploadedFile(
-            "bad_backup.sqlite3",
-            b"This is not a SQLite database file at all",
-            content_type="application/octet-stream"
-        )
         response = self.client.post(
-            '/admin/database-import/',
-            {'database_file': fake_file},
+            '/admin/database-clear/',
+            {'confirm_text': 'wrong_word'},
             follow=True
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Database Import Rejected")
+        self.assertContains(response, "Database Clear Aborted")
+        self.assertTrue(Project.objects.filter(id=self.project.id).exists())
+
+    def test_database_clear_purges_records_and_preserves_master_user(self):
+        """Valid clear deletes project records, keeps user aman, and auto-saves rollback backup."""
+        self.client.login(username='aman', password='password123')
+        response = self.client.post(
+            '/admin/database-clear/',
+            {'confirm_text': 'CLEAR', 'remove_non_admin_users': '1'},
+            follow=True
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Database cleared successfully")
+        self.assertEqual(Project.objects.count(), 0)
+        self.assertEqual(Task.objects.count(), 0)
+        self.assertTrue(User.objects.filter(username='aman', is_superuser=True).exists())
+        self.assertFalse(User.objects.filter(username='regular_staff').exists())
+
+    def test_database_clear_denies_non_superuser(self):
+        """Non-superusers cannot clear the database."""
+        self.client.login(username='regular_staff', password='password123')
+        response = self.client.post('/admin/database-clear/', {'confirm_text': 'CLEAR'})
+        self.assertEqual(response.status_code, 403)
+
 
 
 

@@ -260,6 +260,10 @@
                             <span style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; border: 1px solid rgba(59, 130, 246, 0.3);">
                                 Auto-Rollback
                             </span>
+                        {% elif "pre_clear" in b.filename %}
+                            <span style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                                Pre-Clear Backup
+                            </span>
                         {% endif %}
                     </td>
                     <td style="color: #34d399; font-family: monospace;">{{ b.size_formatted }}</td>
@@ -291,9 +295,54 @@
         </table>
         {% else %}
         <div style="text-align: center; padding: 30px; color: #94a3b8; font-size: 13px;">
-            No rollback backups recorded yet. Backups are created automatically whenever a database is imported or restored.
+            No rollback backups recorded yet. Backups are created automatically whenever a database is imported, restored, or cleared.
         </div>
         {% endif %}
+    </div>
+
+    <!-- Danger Zone: Clear Database -->
+    <div class="db-card" style="border: 1px solid rgba(239, 68, 68, 0.4); background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, #1e293b 100%);">
+        <div class="db-header" style="border-bottom: 1px solid rgba(239, 68, 68, 0.3);">
+            <h2 style="color: #f87171;">
+                <span>⚠️ Danger Zone: Clear / Reset Database</span>
+            </h2>
+        </div>
+
+        <p style="font-size: 13px; color: #cbd5e1; margin-top: 0; line-height: 1.5;">
+            Clearing the database permanently purges all <strong>Projects</strong>, <strong>WBS Tasks</strong>, <strong>Dependencies</strong>, 
+            <strong>Project Members</strong>, <strong>Comments</strong>, and <strong>Activity Logs</strong>.
+        </p>
+
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 18px;">
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #fca5a5;">
+                🛡️ <strong>Safety Guarantee:</strong> An automatic rollback backup will be taken instantly before purging.
+            </div>
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #6ee7b7;">
+                👑 <strong>Master Admin Protected:</strong> User <code>aman</code> will <strong>NOT</strong> be deleted.
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'admin:database_clear' %}">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; gap: 12px; max-width: 550px;">
+                <label style="font-size: 12px; color: #94a3b8;">
+                    To confirm data purge, please type <strong style="color: #ef4444; font-family: monospace; font-size: 13px;">CLEAR</strong> below:
+                </label>
+                <input type="text" name="confirm_text" placeholder="Type CLEAR to confirm" required
+                       style="padding: 10px 14px; background: #0f172a; border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 6px; color: #f87171; font-size: 13px; font-family: monospace; font-weight: bold; width: 100%;">
+
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #cbd5e1; cursor: pointer; margin-top: 4px;">
+                    <input type="checkbox" name="remove_non_admin_users" value="1" style="width: 15px; height: 15px; accent-color: #ef4444;">
+                    <span>Also remove created team members (keep only master admin <code>aman</code>)</span>
+                </label>
+
+                <div>
+                    <button type="submit" class="btn-action btn-danger" onclick="return confirm('⚠️ FINAL CONFIRMATION: Are you absolutely sure you want to clear all project and task records? An automatic rollback backup will be saved.');">
+                        🧹 Purge All Project Records & Clear Database
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 
 </div>

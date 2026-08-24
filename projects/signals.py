@@ -63,10 +63,11 @@ def protect_master_user_save(sender, instance, **kwargs):
 
 @receiver(pre_delete, sender=ProjectMember)
 def protect_master_project_member_delete(sender, instance, origin=None, **kwargs):
-    """Prevents removing master user 'aman' from any project."""
+    """Prevents removing master user 'aman' from any project unless the project itself is being deleted."""
     if origin is not None:
-        if isinstance(origin, Project) or (hasattr(origin, 'model') and issubclass(origin.model, Project)):
-            return
+        return
+    if not instance.project_id or not Project.objects.filter(pk=instance.project_id).exists():
+        return
     if instance.user and instance.user.username == MASTER_USERNAME:
         raise ValidationError(f"Master user '{MASTER_USERNAME}' cannot be removed from project memberships.")
 

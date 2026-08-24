@@ -190,6 +190,7 @@ from projects.admin_database import (
     database_import_view,
     database_restore_backup_view,
     database_delete_backup_view,
+    database_clear_view,
     get_database_stats
 )
 
@@ -207,6 +208,7 @@ def _custom_admin_urls():
         path('database-import/', admin.site.admin_view(database_import_view), name='database_import'),
         path('database-restore/<str:backup_name>/', admin.site.admin_view(database_restore_backup_view), name='database_restore_backup'),
         path('database-delete/<str:backup_name>/', admin.site.admin_view(database_delete_backup_view), name='database_delete_backup'),
+        path('database-clear/', admin.site.admin_view(database_clear_view), name='database_clear'),
     ]
     return custom_urls + _original_get_urls()
 
