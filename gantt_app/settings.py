@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     
     # Local apps
     'projects.apps.ProjectsConfig',
+    'teams.apps.TeamsConfig',
 ]
 
 MIDDLEWARE = [

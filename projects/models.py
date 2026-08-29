@@ -78,6 +78,13 @@ class Project(models.Model):
         default=get_default_master_user_id
     )
     exclude_weekends = models.BooleanField(default=False, help_text="Exclude weekends in duration calculations")
+    assigned_team = models.ForeignKey(
+        'teams.Team',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_projects'
+    )
     baseline_saved_at = models.DateTimeField(null=True, blank=True)
     budget = models.DecimalField(max_digits=14, decimal_places=2, default=0.00, help_text="Total authorized budget in INR (₹)")
     created_at = models.DateTimeField(auto_now_add=True)

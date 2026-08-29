@@ -85,9 +85,9 @@
                             Dashboard
                         </a>
 
-                        <a href="{% url 'team_management' %}" class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors {% if request.resolver_match.url_name == 'team_management' %}bg-slate-800 text-brand-400{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800/50{% endif %} flex items-center gap-1.5">
+                        <a href="{% url 'teams:team_hierarchy' %}" class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors {% if 'teams' in request.resolver_match.app_names or request.resolver_match.url_name == 'team_management' %}bg-slate-800 text-brand-400 font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-slate-800/50{% endif %} flex items-center gap-1.5">
                             <i data-lucide="users" class="w-3.5 h-3.5"></i>
-                            Team
+                            Team Manager
                         </a>
                         
                         {% if project %}
